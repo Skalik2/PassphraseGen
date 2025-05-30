@@ -1,135 +1,14 @@
-import random
-import string
 import tkinter as tk
 from tkinter import ttk
 from tkinter import font as tkfont
 from tkinter import messagebox
+import random
 
-WORD_LIST = [
-    "apple", "banana", "cloud", "dolphin", "forest", "guitar", "mountain", "ocean",
-    "puzzle", "robot", "shadow", "galaxy", "wizard", "mystery", "journey", "crystal",
-    "village", "spirit", "quasar", "nebula", "planet", "comet", "aurora", "eclipse",
-    "volcano", "canyon", "meadow", "island", "lagoon", "harbor", "beacon", "cipher"
-]
-COMMON_SEPARATORS_DISPLAY = {
-    "Hyphen (-)": "-",
-    "Underscore (_)": "_",
-    "Period (.)": ".",
-    "Space ( )": " ",
-    "Tilde (~)": "~"
-}
-SPECIAL_CHARACTERS = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-
-CAPITALIZATION_OPTIONS_DISPLAY = {
-    "None (all lowercase)": "n",
-    "Title Case (Like This)": "t",
-    "Sentence case (First word capitalized)": "s",
-    "Random word FULLY capitalized": "r"
-}
-
-PLACEMENT_OPTIONS_DISPLAY = {
-    "Beginning": "b",
-    "End": "e",
-    "Intersperse (Simplified)": "i"
-}
-
-TIPS = [
-    "Tip: Longer passphrases are generally stronger and harder to crack.",
-    "Tip: Using a mix of uppercase, lowercase, numbers, and symbols increases complexity.",
-    "Tip: Avoid common words or easily guessable patterns.",
-    "Tip: For critical accounts, consider using a unique passphrase for each.",
-    "Tip: Store your passphrases securely using a password manager."
-]
-
-def generate_passphrase_logic(num_words, separator,
-                        add_numbers, num_numbers, number_placement,
-                        add_special, num_special, special_placement,
-                        capitalization_style):
-
-    if not isinstance(num_words, int) or num_words < 2 or num_words > len(WORD_LIST):
-        messagebox.showwarning("Input Error", f"Number of words should be an integer between 2 and {len(WORD_LIST)}.")
-        return None
-        
-    chosen_words_list = random.sample(WORD_LIST, k=num_words)
-
-    if capitalization_style == 't':
-        chosen_words_list = [word.capitalize() for word in chosen_words_list]
-    elif capitalization_style == 'r':
-        if chosen_words_list:
-            idx_to_capitalize = random.randrange(len(chosen_words_list))
-            chosen_words_list[idx_to_capitalize] = chosen_words_list[idx_to_capitalize].upper()
-    elif capitalization_style == 's':
-        if chosen_words_list:
-            chosen_words_list[0] = chosen_words_list[0].capitalize()
-
-    passphrase_core = separator.join(chosen_words_list)
-    final_passphrase_parts = [passphrase_core]
-
-    if add_numbers:
-        numbers_str = "".join(random.choice(string.digits) for _ in range(num_numbers))
-        if number_placement == 'b':
-            final_passphrase_parts.insert(0, numbers_str)
-        elif number_placement == 'e':
-            final_passphrase_parts.append(numbers_str)
-        elif number_placement == 'i':
-            if random.choice([True, False]):
-                 final_passphrase_parts.insert(0, numbers_str)
-            else:
-                 final_passphrase_parts.append(numbers_str)
-
-    if add_special:
-        special_str = "".join(random.choice(SPECIAL_CHARACTERS) for _ in range(num_special))
-        if special_placement == 'b':
-            final_passphrase_parts.insert(0, special_str)
-        elif special_placement == 'e':
-            final_passphrase_parts.append(special_str)
-        elif special_placement == 'i':
-            if random.choice([True, False]):
-                 final_passphrase_parts.insert(0, special_str)
-            else:
-                 final_passphrase_parts.append(special_str)
-
-    return "".join(final_passphrase_parts)
-
-def estimate_strength_logic(passphrase):
-    if not passphrase: return "N/A"
-    score = 0
-    length = len(passphrase)
-
-    if length < 8:
-        score -= 2
-    elif length >= 12:
-        score += 1
-    if length >= 16:
-        score += 1
-    if length >= 20:
-        score +=1
-
-    if any(c.islower() for c in passphrase):
-        score += 1
-    if any(c.isupper() for c in passphrase):
-        score += 1
-    if any(c.isdigit() for c in passphrase):
-        score += 1
-    if any(c in SPECIAL_CHARACTERS for c in passphrase):
-        score += 1
-    
-    num_separators = sum(1 for char in passphrase if char in COMMON_SEPARATORS_DISPLAY.values())
-    if num_separators >= 2:
-        score +=1
-    if num_separators >=3:
-        score +=1
-
-    if score <= 2:
-        return "Weak"
-    elif score <= 4:
-        return "Fair"
-    elif score <= 6:
-        return "Good"
-    elif score <= 8:
-        return "Strong"
-    else:
-        return "Very Strong"
+from config import (
+    WORD_LIST, COMMON_SEPARATORS_DISPLAY, CAPITALIZATION_OPTIONS_DISPLAY,
+    PLACEMENT_OPTIONS_DISPLAY, TIPS
+)
+from logic import generate_passphrase_logic, estimate_strength_logic
 
 class PassphraseApp:
     def __init__(self, root):
@@ -342,8 +221,3 @@ class PassphraseApp:
             self.root.after(1500, lambda: self.copy_button.configure(text=original_text))
         else:
             messagebox.showwarning("Nothing to Copy", "Generate a passphrase first.")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PassphraseApp(root)
-    root.mainloop()

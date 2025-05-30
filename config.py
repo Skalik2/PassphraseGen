@@ -17,7 +17,7 @@ CAPITALIZATION_OPTIONS_DISPLAY = {
     "None (all lowercase)": "n",
     "Title Case (Like This)": "t",
     "Sentence case (First word capitalized)": "s",
-    "Random word FULLY capitalized": "r"
+    "Random word FULLY capitalized)": "r"
 }
 
 PLACEMENT_OPTIONS_DISPLAY = {
@@ -33,3 +33,5 @@ TIPS = [
     "Tip: For critical accounts, consider using a unique passphrase for each.",
     "Tip: Store your passphrases securely using a password manager."
 ]
+
+STORAGE_FILE = "passphrases_store.json"
